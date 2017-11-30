@@ -12,5 +12,5 @@ OS: debian stretch 9.1
 ## notes:
 
 problems with virtualbox-dhcp, not assigning ip-adresses correctly as defined in Vagrantfile
-{code}VBoxManage dhcpserver remove --ifname vboxnet1{code}
+´´´VBoxManage dhcpserver remove --ifname vboxnet1```
 
