@@ -28,5 +28,9 @@ sudo apt-get install -y docker-ce
 sudo groupadd docker
 sudo usermod -aG docker vagrant
 
-#update-rc.d docker enable
-#service docker start
+# for debugging network-connections, an nginx comes handy
+sudo apt-get install -y nginx
+
+# make the hostname the content of the nginx-landin-page
+# to create some transparency of where our requests go to
+sudo echo $(hostname) > /usr/share/nginx/html/index.html
