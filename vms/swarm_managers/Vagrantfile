@@ -1,28 +1,40 @@
 # @TODO: configure managers with loop
 
 NETWORK_BRIDGE = "ens3"
+HOME = "/home/vagrant"
 
 Vagrant.configure("2") do |config|
-  
+
+  # swarm-creator
   config.vm.define "manager1" do |config|
     config.vm.box = "ubuntu/trusty64"
     config.vm.hostname = "manager1"
     config.vm.network "private_network", ip: "192.168.99.201"
-    config.vm.provision "shell", path: "manager_provisioning.sh"
+    config.vm.provision "shell", path: "install_docker.sh"
+    config.vm.provision "shell", path: "install_nginx.sh"
+    config.vm.provision "shell", path: "install_redis-cli.sh"
+    config.vm.provision "file", source: "initialize_swarm.sh", destination: "$HOME/initialize_swarm.sh"
+    config.vm.provision "file", source: "promote_all_nodes.sh", destination: "$HOME/promote_all_nodes.sh"
   end
 
   config.vm.define "manager2" do |config|
     config.vm.box = "ubuntu/trusty64"
     config.vm.hostname = "manager2"
     config.vm.network "private_network", ip: "192.168.99.202"
-    config.vm.provision "shell", path: "manager_provisioning.sh"
-  end
+    config.vm.provision "shell", path: "install_docker.sh"
+    config.vm.provision "shell", path: "install_nginx.sh"
+    config.vm.provision "shell", path: "install_redis-cli.sh"
+    config.vm.provision "file", source: "join_swarm.sh", destination: "$HOME/join_swarm.sh"
+ end
 
   config.vm.define "manager3" do |config|
     config.vm.box = "ubuntu/trusty64"
     config.vm.hostname = "manager3"
     config.vm.network "private_network", ip: "192.168.99.203"
-    config.vm.provision "shell", path: "manager_provisioning.sh"
+    config.vm.provision "shell", path: "install_docker.sh"
+    config.vm.provision "shell", path: "install_nginx.sh"
+    config.vm.provision "shell", path: "install_redis-cli.sh"
+    config.vm.provision "file", source: "join_swarm.sh", destination: "$HOME/join_swarm.sh"
   end
 
   config.vm.define "loadBalancer" do |config|
@@ -30,9 +42,14 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = "loadBalancer"
     config.vm.network "private_network", ip: "192.168.99.200", bridge: NETWORK_BRIDGE
     config.vm.network :forwarded_port, guest: 80, host: 8888
-    config.vm.network :forwarded_port, guest: 81, host: 8889
+    config.vm.network :forwarded_port, guest: 8000, host: 8000
+    config.vm.network :forwarded_port, guest: 8001, host: 8001
+    config.vm.network :forwarded_port, guest: 8002, host: 8002
+    config.vm.network :forwarded_port, guest: 8003, host: 8003
+    config.vm.network :forwarded_port, guest: 8004, host: 8004
+    config.vm.network :forwarded_port, guest: 8005, host: 8005
     config.vm.provision "shell", path: "loadBalancer_provisioning.sh"
-    config.vm.provision "shell", path: "loadBalancer_iptables.sh"
+    config.vm.provision "shell", path: "loadBalancer_iptables.sh", run: "always"
   end
 
 end

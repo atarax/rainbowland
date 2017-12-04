@@ -16,9 +16,6 @@ global
         daemon
 
 defaults
-        log     global
-        mode    http
-        option  httplog
         option  dontlognull
         contimeout 5000
         clitimeout 50000
@@ -31,15 +28,24 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-listen loadBalancer 192.168.99.200:80
-        mode http
+frontend loadBalancer_in
+        bind 192.168.99.200:8000-8005
+        default_backend swarm_cluster
+
+backend swarm_cluster
+        mode tcp
         balance roundrobin
-        option httpclose
-        option forwardfor
-        server manager1 192.168.99.201:80 check
-        server manager2 192.168.99.202:80 check
-	server manager3 192.168.99.203:80 check
+        server manager1 192.168.99.201 check port 80
+        server manager2 192.168.99.202 check port 80
+        server manager3 192.168.99.203 check port 80
 EOL
 
-sudo service haproxy start
-sudo service haproxy reload
+sudo service haproxy restart
+
+# install redis for automating swarm-cluster-creation
+sudo apt-get install -y redis-server
+
+# bind to right interface (@TODO: VERY DIRTY)
+echo "bind 192.168.99.200" >> /etc/redis/redis.conf
+sudo service redis-server stop
+sudo service redis-server start
